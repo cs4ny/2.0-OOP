@@ -1,0 +1,142 @@
+# Classes required for clickingGameOOPDesign.py
+
+import pygame
+import random
+
+# CONSTANTS
+WHITE = (255,255,255)
+BLACK = (0,0,0)
+
+
+
+class Block():
+
+    def __init__(self, x, y, w, h, dx, dy, colour,numClicked):
+        """ Constructor for a block """
+
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.dx = dx
+        self.dy = dy
+        self.colour = colour
+        self.numClicked = numClicked
+        self.font = pygame.font.SysFont("Calibri", 24, True, False)
+    # end __init__()
+
+    def getInfo(self):
+        return [self.x, self.y, self.w, self.h]
+
+    def update(self, screen):
+        """ Update the status of the bouncing block. """
+
+        # Move
+        self.x += self.dx
+        self.y += self.dy
+
+        # Bounce off of boundaries
+        if self.x < 0 or self.x + self.w > screen.get_width():
+            self.dx *= -1
+        if self.y < 0 or self.y + self.h > screen.get_height():
+            self.dy *= -1
+
+    # end update()
+
+    def clicked(self):
+        """ Gets the current mouse position and checks if the mouse
+            is within the boundaries of the block.  Return True or False."""
+
+        # Get Mouse Position
+        mousePosition = pygame.mouse.get_pos()
+        mouseX = mousePosition[0]
+        mouseY = mousePosition[1]
+
+        if mouseX >= self.x and mouseX <= self.x + self.w and mouseY >= self.y and mouseY <= self.y + self.h:
+            return True
+        else:
+            return False
+    # end clicked()
+
+    def draw(self, screen):
+        """ Draw the block to the screen. """
+
+        # Draw Block
+        pygame.draw.rect(screen,self.colour,[self.x,self.y,self.w,self.h])
+
+        # Draw Times Block Clicked Centered in Block
+        numClickedText = self.font.render(str(self.numClicked), True, BLACK)
+        textX = (self.x + self.w // 2) - (numClickedText.get_width() // 2)
+        textY = (self.y + self.h // 2) - (numClickedText.get_height() // 2)
+
+        screen.blit(numClickedText, [textX,textY])
+    # end draw()
+
+    def decreaseNumClicked(self):
+        self.numClicked -= 1
+
+    def getNumClicked(self):
+        return self.numClicked
+
+    def resetNumClicked(self):
+        self.numClicked = numClicked
+
+# end class Block()
+
+#Player Class
+
+import pygame
+import random
+
+class Player():
+    """ Player Class"""
+
+    def __init__(self, x, y, colour):
+        """ Constructor. """
+        self.x = x
+        self.y = y
+        self.dx = 0
+        self.dy = 0
+        self.w = 50
+        self.h = 50
+        self.colour = colour
+
+    def setdx(self, dx):
+        self.dx = dx
+
+    def setdy(self, dy):
+        self.dy = dy
+
+    def getdx(self):
+        return self.dx
+
+    def getdy(self):
+        return self.dy
+
+    def getInfo(self):
+        return [self.x, self.y, self.w, self.h]
+
+    def teleport(self,ranx,rany):
+        self.x = ranx
+        self.y = rany
+        
+    def update(self,screen):
+        self.x += self.dx
+        self.y += self.dy
+
+        # Bounce off of boundaries
+        if self.x < 0:
+            self.x = 0
+        elif self.x + self.w > screen.get_width():
+            self.x = screen.get_width() - self.w
+        if self.y < 0:
+            self.y = 0
+        elif self.y + self.h > screen.get_height():
+            self.y = screen.get_height() - self.h
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.colour, [self.x,self.y,self.w,self.h])
+
+# end class Player()
+
+
