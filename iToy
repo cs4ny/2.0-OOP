@@ -1,0 +1,23 @@
+# i TO y
+# Create a List of 6 words that the user enters
+
+userList = []
+for i in range (6):
+    userInput = input("Please enter a word: ")
+    userList.append(userInput)
+
+    
+#Make a copy of this lsit of words and, in the copy, change all of the i's to y's and I's to Y's
+copyList = userList[:]
+
+for index in range(len(copyList)):
+    if copyList[index] == "i":
+        copyList[index] = "y"
+    elif copyList[index] == "I":
+        copyList[index] = "Y"
+
+
+    
+#Print out the orignial and modified copy
+print("The original List is ",userList)
+print("The copied List is", copyList)
