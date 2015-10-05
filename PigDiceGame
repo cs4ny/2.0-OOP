@@ -1,0 +1,167 @@
+# Pig Dice Game
+
+import random
+
+#Start of main()
+def main():
+    #Start of loop
+    loop = True
+
+    #Looping of the interface
+    while loop == True:
+        print()
+        print("""
+                        Welcome to the Pig Dice Game
+
+                            1. Player vs Player
+                            2. Instructions
+                            3. Exit
+             """)
+        #Ask for the player input
+        player_choice = int(input("                 Please enter your choice (in number only)  "))
+
+        #To play the game
+        #Also ask for the number of rounds the user would like to play
+        if player_choice == 1:
+            number_round_input = int(input("             Please enter the number of round you would like to play:  "))
+            player_player(number_round_input)
+
+        #To ask for instructions
+        elif player_choice == 2:
+            instructions()
+
+        #To exit
+        elif player_choice == 3:
+            loop = False
+        else:
+            print("Invalid Selection")
+    print(" You will now exit this program")
+#End main()
+
+
+#Start of Instructions()
+#Instructions of the game
+def instructions():
+    print()
+    print("""
+                                        Instructions
+ The objective of this game is too get the highest points from rolling the dice without rolling 1
+                             The game will start with Player1
+                          The game will alternate between players
+ The points will be added up between each rolls as long as the player does not roll the number 1
+           When the number 1 is rolled, all the player previous score will be erased
+       His/Her/Its score will be returned to the number before the player rolls the dice
+                           Players can choose the number of rounds they want to play
+        A Player's ability to know when to stop will be the biggests factor in this game
+                                 Have Fun and Good luck
+        """)
+#End of Instructions()
+
+
+#Start of user(cPlayer)
+#Function for user's dice rolling and round score
+def user(cPlayer):
+
+    #Set round score to 0
+    user_score = 0
+
+    #Play again
+    loop = True
+    while loop == True:
+        print()
+        cont = input("Do you want to roll again (y) or Stop (n) ")
+
+        #User wants to continue
+        if cont == "y":
+
+            #User input and score
+            roll = input("Please press enter to roll")
+            user_roll = random.randint(1,6)
+            user_roll2 = random.randint(1,6)
+            roll = user_roll + user_roll2 
+
+            #User rolls a 1
+            if user_roll == 1 or user_roll2 == 1:
+                print("You roll a 1, Your score for this round will be reset 0")
+                user_score = 0
+                loop = False
+
+            #User rolls a number that is not 1 and Total score for the round
+            else:
+                print("You roll",user_roll,"," ,user_roll2)
+                user_score += roll
+                print("Your score for this round is", user_score)
+
+        #User wants to stop
+        elif cont == "n":
+            loop = False  
+
+        #If user enters an invalid option
+        else:
+            print("Please enter y/n only")
+
+    #Ends of user function, return values 
+    print("Your turn has stopped")
+    print("Your score for the end of this round is", user_score)
+    return (user_score)
+#End of user(cPlayer)    
+
+
+#Start player_player()
+#Switch turn of player and also calculate total score for each user
+def player_player(number_of_round):
+
+    #Default settings
+    player1_score = 0
+    player2_score = 0
+
+    #Set current player
+    current_player = "Player 1"
+
+    # Execute a round and switch turn
+    # For input number of rounds
+    for i in range (number_of_round*2):
+
+        #Player 1 score 
+        if current_player == "Player 1":
+            print()
+            print("PLAYER 1 TURN")
+            player1_score += user(current_player)
+            print("Player 1 total score is", player1_score)
+            current_player = "Player 2"
+
+        #Player 2 score
+        elif current_player == "Player 2":
+            print()
+            print("PLAYER 2 TURN")
+            player2_score += user(current_player)
+            print("Player 2 total score is", player2_score)
+            current_player = "Player 1"
+
+        #Random check for potential error
+        else:
+            print("error")
+  
+    # All rounds are finished and the result of the game 
+    # Check for a winner
+
+    # Player 1 wins
+    if player1_score > player2_score:
+        print("Player1 total score is",player1_score)
+        print("Player 1 wins")
+
+    #Player 2 wins
+    elif player1_score< player2_score:
+        print("Player1 total score is",player1_score)
+        print("Player 2 wins")
+
+    #Draw
+    else:
+        print("Player1 total score is",player1_score)
+        print("It's a draw")
+#End player_player()
+
+
+#Invoke main()
+main()
+
