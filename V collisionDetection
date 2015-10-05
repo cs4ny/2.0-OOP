@@ -1,0 +1,65 @@
+# Collision Detection for Objects
+# Mr. V
+
+def rectangleCollision(rectObj1, rectObj2):
+    """ rectObj1 and rectObj2 should be objects that have a getInfo() method that
+        returns a list of [x,y,w,h].  Return True if rect1 overlaps with rect2, else False """
+
+    # Get dimensions for each rectangle object
+    rect1Info = rectObj1.getInfo()
+    rect2Info = rectObj2.getInfo()
+
+    # Create variables for the edges of each rectangle
+    le1 = rect1Info[0]
+    re1 = rect1Info[0] + rect1Info[2]
+    te1 = rect1Info[1]
+    be1 = rect1Info[1] + rect1Info[3]
+
+    le2 = rect2Info[0]
+    re2 = rect2Info[0] + rect2Info[2]
+    te2 = rect2Info[1]
+    be2 = rect2Info[1] + rect2Info[3]
+
+    # Check for overlap of rectangles
+    if le1 < re2 and re1 > le2 and be1 > te2 and te1 < be2:
+        return True
+    else:
+        return False
+
+# end rectangleCollision()
+
+
+def rectangleCollisions(rect1Obj, rectObjList, remove = True):
+    """ Requires a rect1Obj and a list of rectangle objects that have a getInfo() method
+        that returns [x,y,w,h].  Checks if rect1Obj collides with any of the rectangle
+        objects in rectObjList.  Returns a list of rectangle objects that rect1Obj has
+        collided with.  If remove is True, collided rectangles are removed from the list."""
+
+    collisionList = []
+
+    for rectangle in rectObjList:
+        if rectangleCollision(rect1Obj, rectangle):
+            collisionList.append(rectangle)
+            if remove:
+                rectObjList.remove(rectangle)
+
+    return collisionList
+
+# end rectangleCollisions()
+
+def rectangleCollisions2(rect1Obj, rectObjList):
+    """ Requires a rect1Obj and a list of rectangle objects that have a getInfo() method
+        that returns [x,y,w,h].  Checks if rect1Obj collides with any of the rectangle
+        objects in rectObjList.  Returns True if collided."""
+
+    collisionList = []
+
+    for rectangle in rectObjList:
+        if rectangleCollision(rect1Obj, rectangle):
+            return True
+
+
+
+
+
+        
