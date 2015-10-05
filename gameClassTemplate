@@ -1,0 +1,93 @@
+# GAME CLASS TEMPLATE
+
+import pygame
+
+# GLOBAL CONSTANTS
+COLOUR = [ (255, 255, 255), (0, 0, 0), (96, 96, 96), (255, 0, 0), (0, 255, 0),
+            (0, 0, 255), (255, 255, 0), (255, 0, 255), (255, 128, 0) ]
+
+WHITE = 0
+BLACK = 1
+GREY = 2
+RED = 3
+GREEN = 4
+BLUE = 5
+YELLOW = 6
+PURPLE = 7
+ORANGE = 8
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
+
+
+# GAME CLASS
+class Game():
+
+    def __init__(self):
+        """ Constructor for Game Class """
+
+        # Initialize pygame, screen and clock
+        pygame.init()
+        self.screen = pygame.display.set_mode(SCREEN_SIZE)
+        clock = pygame.time.Clock()
+
+        # Initialize all variables to starting values
+        self.initialize()
+
+        loop = True
+        while loop:
+            # Process Events / Game Logic / Draw / Pause 
+            loop = self.processEvents()
+            self.runLogic()
+            self.displayFrame()
+            clock.tick(30)
+
+        # Close window and exit
+        pygame.quit()
+        
+    # end __init__()
+
+
+    def initialize(self):
+        """ Set all variables for beginning of game. """
+
+        pass
+
+    # end initialize()
+
+
+    def processEvents(self):
+
+        loop = True
+
+        # EVENT HANDLING
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                loop = False
+
+        return loop
+
+    # end processEvents()
+
+
+    def runLogic(self):
+        pass
+
+    # end runLogic()
+
+
+    def displayFrame(self):
+        # Draw Commands
+        self.screen.fill(COLOUR[WHITE])
+
+        # Update screen
+        pygame.display.flip()
+
+    # end displayFrame()
+
+# end Game() class    
+
+
+# Create a Game object to begin
+Game()
