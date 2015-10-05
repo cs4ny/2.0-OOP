@@ -1,0 +1,331 @@
+# GAME CLASS TEMPLATE
+
+import pygame
+import clickingGameClasses as cg
+import random as r
+import collisionDetection as cd
+
+# GLOBAL CONSTANTS
+COLOUR = [ (255, 255, 255), (0, 0, 0), (96, 96, 96), (255, 0, 0), (0, 255, 0),
+            (0, 0, 255), (255, 255, 0), (255, 0, 255), (255, 128, 0) ]
+
+WHITE = 0
+BLACK = 1
+GREY = 2
+RED = 3
+GREEN = 4
+BLUE = 5
+YELLOW = 6
+PURPLE = 7
+ORANGE = 8
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 800
+SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
+
+FPS = 30
+
+# GAME CLASS
+class Game():
+
+    def __init__(self):
+        """ Constructor for Game Class """
+
+        # Initialize pygame, screen and clock
+        pygame.init()
+        self.screen = pygame.display.set_mode(SCREEN_SIZE)
+        clock = pygame.time.Clock()
+
+        # Initialize all variables to starting values
+        self.initialize()
+
+        loop = True
+        while loop:
+            # Process Events / Game Logic / Draw / Pause 
+            loop = self.processEvents()
+            self.runLogic()
+            self.displayFrame()
+            clock.tick(FPS)
+
+        # Close window and exit
+        pygame.quit()
+        
+    # end __init__()
+
+
+    def initialize(self):
+        """ Set all variables for beginning of game. """
+
+        self.bgcolor = COLOUR[WHITE]
+        self.score = 0
+        self.frameCount = 0
+        self.gameOver = False
+        self.lives = 5
+
+        # List of Enemies 
+        self.enemiesList = []
+
+        # First Few enemies
+        self.enemies = cg.Block(150, 0, 40, 40, 0, 5, COLOUR[GREEN],2)
+        self.enemiesList.append(self.enemies)
+
+        # List of Hearts
+        self.heartList = []
+
+        # List of Bullets for Player
+        self.pbulletList = []
+
+        # Big enemes bullets List
+        self.aebulletList = []
+
+        #Create a Player
+        self.player = cg.Player(450,750,COLOUR[BLACK])
+
+        #Background Image
+        self.imageNum = 1
+        self.backgroundImg1 = pygame.image.load("images.jpg").convert()
+        self.backgroundImg2 = pygame.image.load("images2.jpg").convert()
+        self.backgroundImg3 = pygame.image.load("images3.jpg").convert()
+        self.backgroundImg4 = pygame.image.load("images4.jpg").convert()
+
+    # end initialize()
+
+
+    def processEvents(self):
+
+        loop = True
+
+        # EVENT HANDLING
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                loop = False
+
+            #Player's movement
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    self.player.setdx(10)
+                elif event.key == pygame.K_LEFT:
+                    self.player.setdx(-10)
+                elif event.key == pygame.K_UP:
+                    self.player.setdy(-10)
+                elif event.key == pygame.K_DOWN:
+                    self.player.setdy(10)
+
+                #Bullets
+                elif event.key == pygame.K_SPACE:
+                    self.pbulletList.append(cg.Block(self.playerX+20,self.playerY-5,5,5,0,-8,COLOUR[RED],1))
+                #Restart
+                elif event.key == pygame.K_RETURN:
+                    self.initialize()
+                    
+            #Player's movement     
+            elif event.type == pygame.KEYUP:
+                # Stop movement if K_RIGHT is released and moving right
+                if event.key == pygame.K_RIGHT and self.player.getdx() > 0:
+                    self.player.setdx(0)
+                # Stop movement if K_LEFT is released and moving left
+                elif event.key == pygame.K_LEFT and self.player.getdx() < 0:
+                    self.player.setdx(0)
+                # Stop movement if K_UP is released and moving up
+                elif event.key == pygame.K_UP and self.player.getdy() < 0:
+                    self.player.setdy(0)
+                # Stop movement if K_DOWN is released and moving down
+                elif event.key == pygame.K_DOWN and self.player.getdy() > 0:
+                    self.player.setdy(0)
+               
+            
+
+        return loop
+
+    # end processEvents()
+
+
+    def runLogic(self):
+
+        #Check for 0 Lives:
+        if self.lives > 0:
+
+            # Increment frameCount
+            self.frameCount += 1
+
+            # Increment Background
+            self.imageNum += 1
+
+            #Update Player
+            self.player.update(self.screen)
+
+            # Update enemies
+            for enemies in self.enemiesList:
+                enemies.update(self.screen)
+
+            #Update Hearts
+            for heart in self.heartList:
+                heart.update(self.screen)
+
+            #Update Bullets Player
+            for bullet in self.pbulletList:
+                bullet.update(self.screen)
+
+            #Update Bullets Enemies
+            for bulletList in self.aebulletList:
+                for bullet in bulletList:
+                    bullet.update(self.screen)
+
+            #Check Player's coordinate for bullets firing
+            playerInfo = self.player.getInfo()
+            self.playerX = playerInfo[0]
+            self.playerY = playerInfo[1]
+
+            #Collisions With Hearts
+            healthList = cd.rectangleCollisions(self.player, self.heartList, True)
+            self.lives += len(healthList)
+                
+
+            # Start of game
+            nextSlide = False
+            for enemies in self.enemiesList:
+
+                #Enemies life = 0
+                if enemies.getNumLife() == 0:
+
+                    #Removal of enemies
+                    self.enemiesList.remove(enemies)
+
+                    #If enemies number is less than 1
+                    if len(self.enemiesList) < 7:
+                        nextSlide = True
+
+            #Player's collision with Enemies Plane
+            for enemies in self.enemiesList:
+                if cd.rectangleCollision(self.player,enemies):
+                        self.enemiesList.remove(enemies)
+
+                        #Lives update
+                        self.lives -= 1
+
+                        #If enemies number is less than 1
+                        if len(self.enemiesList) < 7:
+                            nextSlide = True
+
+            #Bullet's collision with Enemies Plane
+            for enemies in self.enemiesList:
+                for bullets in self.pbulletList:
+                    if cd.rectangleCollision(enemies,bullets):
+                        self.score += 1
+                        self.pbulletList.remove(bullets)
+
+                        #Check if enemies life is bigger than 1
+                        if enemies.getNumLife() >= 1 :
+                            enemies.decreaseNumLife()
+                                
+                        #Enemies' planes destroyed
+                        elif enemies.getNumLife() == 0:
+
+                            #Removal of enemies
+                            self.enemiesList.remove(enemies)
+                            self.pbulletList.remove(bullets)
+
+                            #If enemies number is less than 1
+                            if len(self.enemiesList) < 7:
+                                nextSlide = True
+
+
+            #Enemies Plane Creation
+            if nextSlide:
+                for i in range(r.randrange(3,8)):
+                    x = r.randrange(0, SCREEN_WIDTH - 25)
+                    y = 0
+                    dx = 0
+                    dy = r.randrange(1,5)
+                    colour = COLOUR[r.randrange(4,9)]
+                    numLife = r.randrange(5)
+
+                    # Create blocks with random values and add to list of block
+                    self.enemies = cg.Block(x, 0, 40, 40, 0, dy, colour,numLife)
+                    self.enemiesList.append(self.enemies)
+
+                if len(self.heartList) < 3:
+                    for i in range(r.randrange(1,5)):
+                        x = r.randrange(0, SCREEN_WIDTH - 25)
+                        y = 0
+                        dx = 0
+                        dy = r.randrange(1,5)
+                        self.heart = cg.Block(x,0,10,10,0,dy,COLOUR[RED],1)
+                        self.heartList.append(self.heart)
+
+                for enemies in self.enemiesList:
+                    self.ebulletList = []
+                    self.aebulletList.append(self.ebulletList)
+                    enemiesInfo = self.enemies.getInfo()
+                    self.enemiesX = enemiesInfo[0]
+                    self.enemiesY = enemiesInfo[1]
+                    self.ebulletList.append(cg.Block(self.enemiesX+20,self.enemiesY-5,5,5,0,-8,COLOUR[BLACK],1))
+                    print(self.ebulletList)
+                
+            #Background Animation
+            if self.imageNum == 4:
+                self.imageNum = 1
+
+        #Game Over
+        else:
+            self.gameOver = True
+       
+
+    # end runLogic()
+
+
+    def displayFrame(self):
+        # Draw Commands
+
+        #Game Over
+        if self.gameOver:
+            pygame.display.set_caption("GAME OVER!")
+            self.screen.fill(COLOUR[WHITE])
+            font = pygame.font.SysFont("serif", 25)
+            text = font.render("Game Over, click ENTER to restart -- SCORE " + str(self.score), True, COLOUR[BLACK])
+            center_x = (SCREEN_WIDTH // 2) - (text.get_width() // 2)
+            center_y = (SCREEN_HEIGHT // 2) - (text.get_height() // 2)
+            self.screen.blit(text, [center_x, center_y])
+
+        else:
+            self.screen.fill(self.bgcolor)
+            self.screen.blit(self.backgroundImg1, [0,0])
+            pygame.display.set_caption(" Lives:" + str(self.lives) + " Score:" + str(self.score))
+            font = pygame.font.SysFont("serif", 20)
+            text = font.render("LIVES:" + str(self.lives), True, COLOUR[BLACK])
+            text2 = font.render("SCORE:" + str(self.score), True, COLOUR[BLACK])
+            self.screen.blit(text2,[10,10])
+            self.screen.blit(text,[10,30])
+
+            
+
+            # Draw Blocks
+            for enemies in self.enemiesList:
+                enemies.draw(self.screen)
+
+            #Draw Hearts
+            for heart in self.heartList:
+                heart.draw(self.screen)
+
+            #Draw Bullets
+            for bullet in self.pbulletList:
+                bullet.draw(self.screen)
+
+            #Draw Bullets
+            for bulletList in self.aebulletList:
+                for bullet in bulletList:
+                    bullet.draw(self.screen)
+
+            #Draw Player
+            self.player.draw(self.screen)
+
+        # Update screen
+        pygame.display.flip()
+
+    # end displayFrame()
+
+# end Game() class    
+
+
+# Create a Game object to begin
+Game()
