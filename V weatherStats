@@ -1,0 +1,199 @@
+# Weather Statistics Example
+
+import random as r
+import validInputLib as vi
+
+def main():
+
+    # Create an initial list of daily temperatures
+    dailyTempList = getDailyTempList()
+
+    # Get user's selection and take action
+    mainLoop = True
+    while mainLoop:
+
+        selection = getMenuSelection()
+
+        if selection == "1": # Load New Temp Data
+            dailyTempList = getDailyTempList()
+
+        elif selection == "2": # Display All Temperatures
+            displayAllTemps(dailyTempList)
+
+        elif selection == "3": # Display Single Day
+            displaySingleDay(dailyTempList)
+
+        elif selection == "4": # Display Range of Temperatures
+            displayRangeOfDays(dailyTempList)
+
+        elif selection == "5": # Update a Day
+            updateDayTemp(dailyTempList)
+
+        elif selection == "6": # Statistics
+            tempStatistics(dailyTempList)
+
+        elif selection == "7": # Exit
+            mainLoop = False
+
+        else:
+            print("Invalid Selection.")
+    # end mainLoop
+
+# end main()
+
+
+def getDailyTempList():
+    """ Gives the user a choice of how to generate a list of temperatures.
+        Returns a list of temperatures. """
+
+    # Menu of Create a List Option
+    print()
+    print("CREATE A LIST MENU")
+    print("1: List of Predefined Values")
+    print("2: List of Random Values")
+    print("3: List of Values from User Input")
+    print("4: List of Values from a Data File")
+    print()
+    selection = input("Please enter a # from the menu:")
+
+    if selection == "1":
+        return [-18, -16, -20, -15, -8, -5, 0, -33]
+
+    elif selection == "2":
+        # Generate random numbers within a set range
+        dTempList = []
+        for i in range(7):
+            randNum = r.randint(-30,5)
+            dTempList.append(randNum)
+
+    elif selection == "3":
+        # Ask user for temperatures one at a time
+        dTempList = []
+        for i in range(7):
+            userInput = int(input("Please enter a temperature:"))
+            dTempList.append(userInput)
+
+    elif selection == "4":
+        # Read in data from a file
+        dTempList = []
+
+        try:
+            inFile = open("dailyTempData.txt","r")
+            for line in inFile:
+                line = line.strip() # Removes leading & trailing whitespace & \n
+                dTempList.append(int(line))
+        except:
+            print("Error Loading File")
+
+    return dTempList
+
+# end getDailyTempList()
+
+
+def getMenuSelection():
+    """ Display menu and get and return user selection."""
+
+    print()
+    print("MAIN MENU")
+    print("1: Load New Temperature Data")
+    print("2: Display All Temperatures")
+    print("3: Display Temperature for a Single Day")
+    print("4: Display Temperatures for a Range of Days")
+    print("5: Update Temperature for a Day")
+    print("6: Display Temperature Statistics")
+    print("7: Exit")
+    print()
+    return input("Select a # from the menu: ")
+# end getMenuSelection()
+
+
+def displayAllTemps(dTempList):
+    """ Display all temperatures.  Giver user choice of looping technique to use."""
+
+    # Menu of Looping Options
+    print()
+    print("DISPLAY LOOPING MENU")
+    print("1: For Loop: By Item")
+    print("2: For Loop: By Index")
+    print("3: While Loop")
+    print()
+    selection = input("Please enter a # from the menu:")
+
+
+    if selection == "1":
+        # Method 1: For Loop: By Item
+        dayNum = 0
+        for temp in dTempList:
+            print("Day:", dayNum, "Temperature:", temp)
+            dayNum += 1
+
+    elif selection == "2":
+        # Method 2: For Loop: By Index
+        for index in range(len(dTempList)):
+            print("Day:", index, "Temperature:", dTempList[index])
+
+    elif selection == "3":
+        # Method 3: While Loop
+        index = 0
+        while index < len(dTempList):
+            print("Day:", index, "Temperature:", dTempList[index])
+            index += 1
+
+    else:
+        print("Invalid Selection.")
+
+# end displayAllTemps()
+
+
+def displaySingleDay(dTempList):
+    """ Ask the user for a day #.  Display the temp for that day."""
+
+    dayNum = vi.intInput("Please enter a day #:", 0, len(dTempList) - 1)
+    print("Day:", dayNum, "Temperature:", dTempList[dayNum])
+
+# end displaySingleDay()
+
+
+def displayRangeOfDays(dTempList):
+    """ Ask user for start and stop day numbers to display."""
+
+    # Ask user for start and stop day numbers
+    startDay = vi.intInput("Please enter starting day #: ", 0, len(dTempList) - 1)
+    stopDay = vi.intInput("Please enter ending day #: ", 0, len(dTempList) - 1)
+
+    # Display days from start to stop if start is less than stop
+    if startDay < stopDay:
+        for index in range(startDay,stopDay + 1):
+            print("Day:", index, "Temperature:", dTempList[index])
+    else:
+        print("Invalid start and stop values.")
+
+# end displayRangeOfDays()
+
+
+def updateDayTemp(dTempList):
+    """ Ask the user for a day # and a new temperature.
+        Update the list that is passed in."""
+
+    dayNum = vi.intInput("Please enter a day #:", 0, len(dTempList) - 1)
+    newTemp = int(input("Please enter a new temperature:"))
+
+    dTempList[dayNum] = newTemp
+
+    print("Day:", dayNum, "changed to", newTemp)
+
+# end updateDayTemp()
+
+
+def tempStatistics(dTempList):
+    """ Display statistics (max,min,average) on the provided integer list."""
+
+    print("Students implement this using the getMax, getMin and getSum\
+            functions they created.")
+
+# end tempStatistics
+
+
+# Call main to begin program
+if __name__ == '__main__':
+    main()
