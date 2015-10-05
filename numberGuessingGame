@@ -1,0 +1,63 @@
+# Number Guessing Game
+# Starting File for PP1 Assignment
+
+import random
+
+#Start main()
+def main():
+
+    #Info Display
+    displayIntro()
+
+    # Randomly generate a number between 1 and 100 for the user to guess.
+    myNumber = random.randint(1,100)
+
+    # Ask the user for a guess
+    userGuess = int(input("What's your guess? "))
+
+    #Invoke checkGuess function
+
+    # Guessing Loop
+    loop = True
+    while loop == True:  
+        if checkGuess(userGuess,myNumber) == True:
+            loop = False
+        else:
+            userGuess = int(input("Please enter another number "))
+            if checkGuess(userGuess,myNumber) == True:
+                loop = False
+    print("Thank you for playing the Number Guessing Game")
+    # End Guessing Loop
+
+#End main()
+
+#Start displayIntro()
+#displayInstructions
+def displayIntro(): 
+    print()
+    print("I'm thinking of a number between one and a hundred.")
+    print("See if you can guess my number in the fewest amount of tries...")
+    print()
+#End displayIntro()
+
+#Start checkGuess()
+def checkGuess(user_Guess,my_Number):
+    if user_Guess == my_Number:
+        print("Good job!  You guessed my number!")
+        return True
+    elif user_Guess < my_Number:
+        print("Your guess is too low.")
+        return False          
+    else:
+        print("Your guess is too high.")
+        return False                 
+#End checkGuess()
+
+
+#Invoke main()
+main()
+
+
+       
+  
+
