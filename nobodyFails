@@ -1,0 +1,30 @@
+#NOBODY FAILS
+
+import random
+
+#Create a list of 15 random intergers (25-75), reprensent test scores
+
+testList = []
+
+#Traverse and adding number to the empty testList
+for i in range (15):
+    testList.append(random.randrange(25,76,1))
+
+#Create a copy of the lsit above and, in the copy,
+#change any test scores that are below 50 to 50
+
+copyTestList = testList[:]
+
+#Print original copied List
+print(copyTestList)
+
+#Loop for changing values that are smaller than 50
+for index in range(len(copyTestList)):
+    if copyTestList[index] < 50:
+        copyTestList[index] = 50
+    else:
+        pass
+
+#Print out the original list and the modified copy
+print(testList)
+print(copyTestList)
