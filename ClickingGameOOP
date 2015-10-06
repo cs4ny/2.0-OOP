@@ -1,0 +1,254 @@
+# IMPORTANT: Use cg and cd files
+
+import pygame
+import clickingGameClasses as cg
+import random as r
+import collisionDetection as cd
+
+# GLOBAL CONSTANTS
+COLOUR = [ (255, 255, 255), (0, 0, 0), (96, 96, 96), (255, 0, 0), (0, 255, 0),
+            (0, 0, 255), (255, 255, 0), (255, 0, 255), (255, 128, 0) ]
+
+WHITE = 0
+BLACK = 1
+GREY = 2
+RED = 3
+GREEN = 4
+BLUE = 5
+YELLOW = 6
+PURPLE = 7
+ORANGE = 8
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+SCREEN_SIZE = (SCREEN_WIDTH,SCREEN_HEIGHT)
+
+FPS = 30
+
+# GAME CLASS
+class Game():
+
+    def __init__(self):
+        """ Constructor for Game Class """
+
+        # Initialize pygame, screen and clock
+        pygame.init()
+        self.screen = pygame.display.set_mode(SCREEN_SIZE)
+        clock = pygame.time.Clock()
+
+        # Initialize all variables to starting values
+        self.initialize()
+
+        loop = True
+        while loop:
+            # Process Events / Game Logic / Draw / Pause 
+            loop = self.processEvents()
+            self.runLogic()
+            self.displayFrame()
+            clock.tick(FPS)
+
+        # Close window and exit
+        pygame.quit()
+        
+    # end __init__()
+
+
+    def initialize(self):
+        """ Set all variables for beginning of game. """
+
+        self.bgcolor = COLOUR[WHITE]
+        self.levelNum = 1
+        self.frameCount = 0
+        self.gameOver = False
+        self.lives = 5
+
+        # List of Blocks - Level 1 starts with a single block in the list
+        self.blockList = []
+        self.blockList.append(cg.Block(300,100,80,80,5,-8,COLOUR[ORANGE],2))
+
+        # List of Hearts
+        self.heartList = []
+
+        #Create a Player
+        self.player = cg.Player(200,200,COLOUR[BLUE])
+
+    # end initialize()
+
+
+    def processEvents(self):
+
+        loop = True
+
+        # EVENT HANDLING
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                loop = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for block in self.blockList:
+                    if block.clicked():
+                        block.decreaseNumClicked()
+
+            elif event.type == pygame.KEYDOWN:
+            # Set dx or dy depending on what key is pressed
+                if event.key == pygame.K_d:
+                    self.player.setdx(10)
+                elif event.key == pygame.K_a:
+                    self.player.setdx(-10)
+                elif event.key == pygame.K_w:
+                    self.player.setdy(-10)
+                elif event.key == pygame.K_s:
+                    self.player.setdy(10)
+            #Restart
+                elif event.key == pygame.K_SPACE:
+                    if self.gameOver:
+                        self.initialize()
+                    
+            elif event.type == pygame.KEYUP:
+                # Stop movement if K_RIGHT is released and moving right
+                if event.key == pygame.K_d and self.player.getdx() > 0:
+                    self.player.setdx(0)
+                # Stop movement if K_LEFT is released and moving left
+                elif event.key == pygame.K_a and self.player.getdx() < 0:
+                    self.player.setdx(0)
+                # Stop movement if K_UP is released and moving up
+                elif event.key == pygame.K_w and self.player.getdy() < 0:
+                    self.player.setdy(0)
+                # Stop movement if K_DOWN is released and moving down
+                elif event.key == pygame.K_s and self.player.getdy() > 0:
+                    self.player.setdy(0)
+               
+            
+
+        return loop
+
+    # end processEvents()
+
+
+    def runLogic(self):
+
+        #Check for 0 Lives:
+        if self.lives > 0:
+
+            # Increment frameCount
+            self.frameCount += 1
+
+            #Update Player
+            self.player.update(self.screen)
+
+            # Update blocks
+            for block in self.blockList:
+                block.update(self.screen)
+
+            #Update Hearts
+            for heart in self.heartList:
+                heart.update(self.screen)
+
+
+            #Collisions With Hearts
+            healthList = cd.rectangleCollisions(self.player, self.heartList, True)
+            self.lives += len(healthList)
+                
+
+            # Move to next level if every block has been clicked and dissapeared
+            nextLevel = False
+            for block in self.blockList:
+                if block.getNumClicked() == 0:
+
+                    #Removal of blocks
+                    self.blockList.remove(block)
+
+                    #If no more blocks
+                    if len(self.blockList) == 0:
+                        nextLevel = True
+
+                #Collisions with Blocks
+                elif cd.rectangleCollision(self.player,block):
+                    self.blockList.remove(block)
+
+                    #Lives update
+                    self.lives -= block.getNumClicked()
+
+                    #If no more blocks
+                    if len(self.blockList) == 0:
+                        nextLevel = True
+
+            #Next level
+            if nextLevel:
+                self.levelNum += 1
+
+                #Create random blocks that are suited to the level
+                for i in range(self.levelNum):
+                    w = r.randrange(70-self.levelNum,100-self.levelNum)
+                    h = r.randrange(70-self.levelNum,100-self.levelNum)
+                    x = r.randrange(0, SCREEN_WIDTH - w)
+                    y = r.randrange(0, SCREEN_HEIGHT - h)
+                    dx = r.randrange(10)+self.levelNum
+                    dy = r.randrange(10)+self.levelNum
+                    colour = COLOUR[r.randrange(4,9)]
+                    numClicked = r.randrange(self.levelNum)
+                    randomHeart = r.randrange(self.levelNum-1)
+
+                    # Create blocks with random values and add to list of block
+                    self.block = cg.Block(x, y, w, h, dx, dy, colour,numClicked)
+                    self.blockList.append(self.block)
+
+                    #Adding heart
+                    for i in range(randomHeart):
+                        self.heartList.append(cg.Block(300,100,25,25,5,-8,COLOUR[RED],1))
+
+        #Game Over
+        else:
+            self.gameOver = True
+       
+
+    # end runLogic()
+
+
+    def displayFrame(self):
+        # Draw Commands
+
+        #Game Over
+        if self.gameOver:
+            pygame.display.set_caption("GAME OVER!")
+            self.screen.fill(COLOUR[WHITE])
+            font = pygame.font.SysFont("serif", 25)
+            text = font.render("Game Over, click SPACE BAR to restart -- HIGHEST LEVEL " + str(self.levelNum), True, COLOUR[BLACK])
+            center_x = (SCREEN_WIDTH // 2) - (text.get_width() // 2)
+            center_y = (SCREEN_HEIGHT // 2) - (text.get_height() // 2)
+            self.screen.blit(text, [center_x, center_y])
+
+        else:
+            self.screen.fill(self.bgcolor)
+            pygame.display.set_caption("Seconds: " + str(self.frameCount // FPS)+ " Lives:" + str(self.lives) + " Level:" + str(self.levelNum))
+            font = pygame.font.SysFont("serif", 15)
+            text = font.render("LIVES:" + str(self.lives), True, COLOUR[BLACK])
+            text2 = font.render("LEVEL:" + str(self.levelNum), True, COLOUR[BLACK])
+            text3 = font.render("SCORE:" + str(self.frameCount // FPS), True, COLOUR[BLACK])
+            text4 = font.render("COLLECT RED BLOCKS FOR HEART", True, COLOUR[BLACK])
+            self.screen.blit(text2,[10,10])
+            self.screen.blit(text,[10,25])
+            self.screen.blit(text3,[10,40])
+            self.screen.blit(text4,[10,55])
+            
+
+            # Draw Blocks
+            for block in self.blockList:
+                block.draw(self.screen)
+
+            #Draw Hearts
+            for heart in self.heartList:
+                heart.draw(self.screen)
+
+            #Draw Player
+            self.player.draw(self.screen)
+
+        # Update screen
+        pygame.display.flip()
+
+    # end displayFrame()
+
+# end Game() class    
+
+
+# Create a Game object to begin
+Game()
